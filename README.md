@@ -3,12 +3,12 @@
 ## Replication instructions:
 
 1. Clone this repository
-2. Duplicate **`./docker/.env.example`** as **`../docker/.env`** and fill the values
+2. Duplicate **`./docker/.env.example`** as **`./docker/.env`** and fill the values
 3. Duplicate **`./terraform/terraform.tfvars.example`** as **`../terraform/terraform.tfvars`** and fill the values
 4. Create Access Key ID and Secret Access Key of the user from AWS > IAM > Users > [Select the User] > Security Credentials > Create Access Key. Copy it in a safe place.
 5. Run **`aws configure`** on terminal to authenticate AWS user on your local machine
 6. Navigate to **`./terraform`**
-7. Run these commands [Terraform should be installed on your machine before running these]
+7. Run these commands [Terraform and Ansible should be installed on your machine before running these commands]
 
    terraform init
    terraform plan
