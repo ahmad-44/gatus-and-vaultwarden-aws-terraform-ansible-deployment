@@ -1,0 +1,53 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --api.insecure=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --certificatesresolvers.myresolver.acme.httpchallenge=true
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.myresolver.acme.email=${TRAEFIK_EMAIL}
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    labels:
+      - "traefik.enable=true"
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    environment:
+      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
+    volumes:
+      - ./vaultwarden-data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vaultwarden.rule=Host(`vault.${DOMAIN}`)"
+      - "traefik.http.routers.vaultwarden.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden.tls.certresolver=myresolver"
+      - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
+
+  gatus:
+    image: twinproduction/gatus:v5.24.3
+    volumes:
+      - ./gatus-config:/config
+    command: ["/gatus", "--config", "/config/config.yaml"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gatus.rule=Host(`gatus.${DOMAIN}`)"
+      - "traefik.http.routers.gatus.entrypoints=websecure"
+      - "traefik.http.routers.gatus.tls.certresolver=myresolver"
+      - "traefik.http.services.gatus.loadbalancer.server.port=8080"
+
+volumes:
+  vaultwarden-data: {}
+  gatus-config: {}
+  letsencrypt: {}

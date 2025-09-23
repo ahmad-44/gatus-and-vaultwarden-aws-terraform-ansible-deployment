@@ -1,0 +1,139 @@
+---
+- name: Setup EC2 server, Docker, Compose, Vaultwarden, Gatus, Traefik
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    app_dir: /opt/myapp
+    domain: "{{ domain | default('example.com') }}" # passed via extra-vars
+    traefik_email: "{{ traefik_email | default('you@example.com') }}"
+    vaultwarden_admin_token: "{{ vaultwarden_admin_token | default('changeme') }}"
+    compose_src: "{{ playbook_dir }}/../docker/docker-compose.yml"
+    env_src: "{{ playbook_dir }}/../docker/.env"
+
+  tasks:
+    # ----------------------------
+    # Install prerequisites
+    # ----------------------------
+    - name: Ensure apt cache is up to date
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    # ----------------------------
+    # Install Docker & Compose v2 and copy files
+    # ----------------------------
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Determine Ubuntu codename
+      set_fact:
+        ubuntu_codename: "{{ ansible_lsb.codename }}"
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_codename }} stable"
+        state: present
+
+    - name: Install Docker Engine, CLI and containerd
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Compose plugin v2
+      apt:
+        name: docker-compose-plugin
+        state: present
+      ignore_errors: yes
+
+    - name: Ensure docker service is started & enabled
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Ensure docker group exists
+      group:
+        name: docker
+        state: present
+
+    - name: Add default user to docker group
+      user:
+        name: "{{ ansible_user | default('ubuntu') }}"
+        groups: docker
+        append: yes
+
+    # ----------------------------
+    # Create app direcoty and copy files there
+    # ----------------------------
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Create Gatus config directory
+      file:
+        path: "{{ app_dir }}/gatus-config"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create Gatus config file
+      copy:
+        dest: "{{ app_dir }}/gatus-config/config.yaml"
+        content: |
+          endpoints:
+            - name: Example Endpoint
+              url: https://httpbin.org/status/200
+              interval: "10s"
+              conditions:
+                - "[STATUS] == 200"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Copy docker-compose.yml to server
+      copy:
+        src: "{{ compose_src }}"
+        dest: "{{ app_dir }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Copy environment file
+      copy:
+        src: "{{ env_src }}"
+        dest: "{{ app_dir }}/.env"
+        owner: root
+        group: root
+        mode: "0600"
+
+    # ----------------------------
+    # Deploy stack using Compose v2
+    # ----------------------------
+    - name: Deploy Docker Compose stack
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        state: present
+        recreate: auto
+        build: never
+        pull: missing #only if it is missing

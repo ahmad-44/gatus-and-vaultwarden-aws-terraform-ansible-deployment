@@ -1,0 +1,95 @@
+# --------------------------
+# General OS & editor files
+# --------------------------
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.vscode/
+
+# --------------------------
+# Terraform
+# --------------------------
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+.terraform.tfstate.lock.info
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# --------------------------
+# Ansible
+# --------------------------
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Ansible roles & collections cache
+.ansible/collections/
+.ansible/tmp/
+*.retry
+
+# Vaulted files
+*.vault
+*.vault.key
+
+# --------------------------
+# Docker / Compose
+# --------------------------
+# Environment files
+docker/.env
+docker/.env.*.local
+docker/.env.local
+
+# Compose files that might contain secrets
+docker/docker-compose.override.yml
+
+# Docker runtime artifacts
+docker-compose.override.yml
+docker-compose.override.yaml
+docker-compose.override.*
+*.log
+*.pid
+*.sock
+*.tmp
+docker/.cache
+docker/tmp/
+docker/gatus-config/*
+
+# --------------------------
+# Keys & sensitive files
+# --------------------------
+terraform/keys/
+*.pem
+*.pub
+*.key
+*.crt
+*.p12
+*.jks
+
+# --------------------------
+# Logs & temp files
+# --------------------------
+*.log
+*.out
+*.tmp
+tmp/
+temp/
+
+# --------------------------
+# Node / Python / other builds
+# --------------------------
+node_modules/
+dist/
+build/
+*.egg-info/
+

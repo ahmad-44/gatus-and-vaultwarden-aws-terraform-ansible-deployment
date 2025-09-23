@@ -1,0 +1,12 @@
+aws_region = ""
+
+# ubuntu ami, specific to region us-east-1 [AWS]
+ami = "" # change for your region
+
+#default username of ubuntu ec2. ansible will use to ssh into the machine
+ssh_user = ""
+
+instance_type = ""
+
+# IPs allowed to ssh into our ec2, use your own IP for max security
+allowed_ssh_cidr = "0.0.0.0/0" # change to e.g. "203.0.113.5/32"
