@@ -11,11 +11,11 @@
 7. Add your domain to AWS Route53
 8. If you want to auto create DNS A records, then only run step 9 ahead. Don't need to go through step 10,11 and 12. If you want to create DNS records yourself, follow all the steps ahead. Please read ./terraform/terraform.tfvars file before proceeding.
 9. Run these commands [Terraform and Ansible should be installed on your machine before running these commands]
-
+```
    terraform init
    terraform plan
    terraform apply
-
+```
 10. Add first **A record** with Record Name **vault** and Value equal to public IP of EC2 instance.
 11. Add second **A record** with Record Name **gatus** and Value equal to public IP of EC2 instance.
 12. You will be able to access your **gatus** and **vault warden** apps at
