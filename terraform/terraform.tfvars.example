@@ -10,3 +10,15 @@ instance_type = ""
 
 # IPs allowed to ssh into our ec2, use your own IP for max security
 allowed_ssh_cidr = "0.0.0.0/0" # change to e.g. "203.0.113.5/32"
+
+
+
+# READ CAREFULLY
+# Domain should already be added to your hosted zone
+# No A records named vault.domain.com and gatus.domain.com should exist in Route53/HostedZone
+# domain should match the domain value in docker/.env
+# true for yes, create the records, false for no, i will do it manually in Route53
+create_route53_A_records = true
+
+# domain on which our services will be hosted. only matters if create_route53_A_records = true 
+domain = "yourdomain.com" 
